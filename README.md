@@ -21,9 +21,11 @@ Depois de ativar o GitHub Pages, o endereço será:
 
 - Role a página normalmente para ir das peças ao tabuleiro e voltar.
 - Toque numa peça para selecioná-la e depois toque numa entrada destacada para inseri-la.
-- Toque numa posição vazia da zona de montagem para mover a peça selecionada até lá.
-- Para deslizar uma peça inserida, selecione-a e toque no destino, na direção permitida pelas ondas.
-- Use **Girar peça** no topo para mudar a orientação da peça selecionada.
+- No celular, tocar numa área vazia não desloca a peça; todo movimento usa os controles fixos.
+- Use os controles fixos **Esq.**, **Dir.**, **Cima** e **Baixo** para mover a peça selecionada.
+- Na zona de montagem, as peças podem ficar umas sobre as outras, como na versão para computador.
+- Dentro do tabuleiro, os mesmos controles respeitam a direção permitida pelas ondas.
+- Use o botão fixo **Girar** para mudar a orientação da peça selecionada.
 
 ## Abrir localmente
 

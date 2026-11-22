@@ -5,6 +5,8 @@
   const ctx = canvas.getContext("2d");
   const resetButton = document.getElementById("reset-button");
   const rotateButton = document.getElementById("rotate-button");
+  const mobileRotateButton = document.getElementById("mobile-rotate-button");
+  const nudgeButtons = document.querySelectorAll("[data-nudge]");
   const statusElement = document.getElementById("status");
 
   const BOARD_SIZE = 5;
@@ -817,40 +819,30 @@
     pieces = makePieces();
     selectedId = null;
     drag = null;
+    touchTap = null;
     animation = null;
     wonShown = false;
     showStatus("As peças voltaram para a zona de montagem.");
   }
 
-  function moveBoardTowardPoint(piece, point) {
-    const origin = renderOrigin(piece);
-    const bounds = pieceBounds(piece);
-    const rect = {
-      x: origin.x,
-      y: origin.y,
-      width: bounds.width * layout.cell,
-      height: bounds.height * layout.cell,
-    };
-    if (pointInRect(point, rect)) return false;
-
-    const horizontal = waveAxis(piece) === "horizontal";
-    const edge = horizontal
-      ? point.x < rect.x ? rect.x : rect.x + rect.width
-      : point.y < rect.y ? rect.y : rect.y + rect.height;
-    const destination = horizontal ? point.x : point.y;
-    const direction = destination < edge ? -1 : 1;
-    const steps = Math.max(1, Math.ceil(Math.abs(destination - edge) / layout.cell));
-    let moved = false;
-
-    for (let step = 0; step < steps && piece.mode === "board"; step += 1) {
-      const didMove = horizontal
-        ? moveOne(piece, direction, 0)
-        : moveOne(piece, 0, direction);
-      if (!didMove) break;
-      moved = true;
+  function moveSelectedByControl(dx, dy) {
+    const piece = pieceById(selectedId);
+    if (!piece) {
+      showStatus("Selecione uma peça primeiro.");
+      return;
     }
-    if (!moved) showStatus("A peça não pode se mover nessa direção.");
-    return moved;
+    if (animation) return;
+
+    if (piece.mode === "loose") {
+      const target = clampLoose(piece, piece.loose.column + dx, piece.loose.row + dy, 7);
+      const changed = target.column !== piece.loose.column || target.row !== piece.loose.row;
+      piece.loose = target;
+      piece.lastLoose = { ...target };
+      if (!changed) showStatus("A peça chegou ao limite da zona de montagem.");
+      return;
+    }
+
+    if (!moveOne(piece, dx, dy)) showStatus("A peça não pode se mover nessa direção.");
   }
 
   function handleTouchTap(point) {
@@ -858,8 +850,8 @@
     if (piece) {
       selectedId = piece.id;
       const instruction = piece.mode === "loose"
-        ? "Role até o tabuleiro e toque numa entrada destacada."
-        : "Toque no destino para deslizar a peça.";
+        ? "Use os controles fixos para mover ou role até uma entrada destacada."
+        : "Use os controles fixos para deslizar a peça.";
       showStatus(`${piece.name} selecionada. ${instruction}`);
       return;
     }
@@ -869,10 +861,7 @@
     if (selected.mode === "loose") {
       const entry = entryAtPoint(selected, point);
       if (entry) beginInsertion(selected, entry);
-      else placeSelectedInStaging(selected, point);
-      return;
     }
-    moveBoardTowardPoint(selected, point);
   }
 
   canvas.addEventListener("pointerdown", (event) => {
@@ -986,7 +975,7 @@
       rotateSelected();
       return;
     }
-    if (!piece || piece.mode !== "board") return;
+    if (!piece) return;
     const directions = {
       ArrowLeft: [-1, 0],
       ArrowRight: [1, 0],
@@ -995,12 +984,24 @@
     };
     if (directions[event.key]) {
       event.preventDefault();
-      moveOne(piece, ...directions[event.key]);
+      moveSelectedByControl(...directions[event.key]);
     }
   });
 
   resetButton.addEventListener("click", resetGame);
   rotateButton.addEventListener("click", rotateSelected);
+  mobileRotateButton.addEventListener("click", rotateSelected);
+  nudgeButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const directions = {
+        left: [-1, 0],
+        right: [1, 0],
+        up: [0, -1],
+        down: [0, 1],
+      };
+      moveSelectedByControl(...directions[button.dataset.nudge]);
+    });
+  });
   window.addEventListener("resize", resizeCanvas);
 
   function frame(timestamp) {

@@ -92,6 +92,10 @@ canvas:focus-visible {
   background: #338779;
 }
 
+.mobile-piece-controls {
+  display: none;
+}
+
 main {
   width: 100%;
 }
@@ -167,6 +171,66 @@ footer {
     font-size: 0.9rem;
   }
 
+  #rotate-button {
+    display: none;
+  }
+
+  .mobile-piece-controls {
+    position: fixed;
+    right: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    z-index: 20;
+    display: grid;
+    grid-template-columns: repeat(3, 50px);
+    grid-template-rows: repeat(3, 48px);
+    gap: 5px;
+    padding: 9px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 18px;
+    background: rgba(20, 22, 28, 0.9);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(12px);
+  }
+
+  .mobile-piece-controls button {
+    min-width: 48px;
+    min-height: 48px;
+    padding: 0 4px;
+    border-radius: 13px;
+    font-size: 0.875rem;
+    touch-action: manipulation;
+  }
+
+  .nudge-up {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .nudge-left {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .mobile-rotate {
+    grid-column: 2;
+    grid-row: 2;
+    background: #286f65;
+  }
+
+  .mobile-rotate:hover {
+    background: #338779;
+  }
+
+  .nudge-right {
+    grid-column: 3;
+    grid-row: 2;
+  }
+
+  .nudge-down {
+    grid-column: 2;
+    grid-row: 3;
+  }
+
   canvas {
     min-height: 0;
   }
@@ -178,7 +242,7 @@ footer {
   }
 
   .status {
-    bottom: calc(18px + env(safe-area-inset-bottom));
+    bottom: calc(184px + env(safe-area-inset-bottom));
   }
 }
 
