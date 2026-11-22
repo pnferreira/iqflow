@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#15171d">
+    <meta name="description" content="Jogo de encaixe e deslizamento IQFlow para navegador.">
+    <title>IQFlow</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <h1>IQFlow</h1>
+        <p>Monte livremente e deslize as peças pelas entradas do tabuleiro.</p>
+      </div>
+
+      <div class="controls" aria-label="Controles do jogo">
+        <button id="rotate-button" type="button">Girar peça</button>
+        <button id="reset-button" type="button">Reiniciar</button>
+      </div>
+    </header>
+
+    <main>
+      <canvas
+        id="game-canvas"
+        tabindex="0"
+        aria-label="Tabuleiro IQFlow. Arraste as peças da zona de montagem para as entradas do tabuleiro."
+      >
+        Seu navegador não suporta Canvas.
+      </canvas>
+    </main>
+
+    <footer>
+      <span>Arraste para mover</span>
+      <span>Botão direito ou R para girar</span>
+      <span>Setas para deslizar</span>
+    </footer>
+
+    <div id="status" class="status" role="status" aria-live="polite"></div>
+  </body>
+</html>
