@@ -53,12 +53,108 @@ Depois acesse `http://localhost:8000`.
 
 A pasta [`python/`](python/) contém a versão desktop completa em Pygame. Ela não interfere no GitHub Pages, que utiliza somente o `index.html` e os arquivos web da raiz.
 
+### Requisitos
+
+- Python 3.11 ou superior.
+- Pygame 2.5 ou superior.
+- `pip` ou Anaconda/Miniconda.
+
+### Baixar o projeto
+
 ```bash
-cd python
+git clone https://github.com/pnferreira/iqflow.git
+cd iqflow/python
+```
+
+Também é possível baixar o repositório pelo botão **Code → Download ZIP**, descompactar e abrir a pasta `python` no Terminal.
+
+### Opção 1: ambiente virtual no macOS ou Linux
+
+```bash
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
 python main.py
 ```
+
+Para sair do ambiente:
+
+```bash
+deactivate
+```
+
+### Opção 2: ambiente virtual no Windows
+
+No Prompt de Comando ou PowerShell:
+
+```powershell
+py -3.11 -m venv .venv
+.venv\Scripts\activate
+python -m pip install -r requirements.txt
+python main.py
+```
+
+### Opção 3: Anaconda ou Miniconda
+
+```bash
+conda create -n iqflow python=3.11 -y
+conda activate iqflow
+python -m pip install -r requirements.txt
+python main.py
+```
+
+Nas próximas vezes, abra o Terminal na pasta `python` e execute:
+
+```bash
+conda activate iqflow
+python main.py
+```
+
+Para sair do ambiente Conda:
+
+```bash
+conda deactivate
+```
+
+### Controles da versão Python
+
+- Arraste uma peça livre até uma entrada destacada.
+- Arraste uma peça inserida no sentido das ondas.
+- Clique com o botão direito ou pressione `R` para girar uma peça fora do tabuleiro.
+- Use as setas para mover a peça selecionada.
+- Use **Reiniciar** para devolver todas as peças à zona de montagem.
+- Pressione `Esc` para fechar.
+
+### Executar os testes
+
+Com o ambiente ativado e dentro da pasta `python`:
+
+```bash
+pytest
+```
+
+### Problemas comuns
+
+Se aparecer `ModuleNotFoundError: No module named 'pygame'`, confirme que o ambiente está ativado e reinstale as dependências:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+Se o comando `python` não existir no macOS ou Linux, tente:
+
+```bash
+python3 main.py
+```
+
+### Organização da versão Python
+
+- `python/main.py`: janela e loop principal.
+- `python/pieces.py`: formas, cores, rotações e ondas.
+- `python/board.py`: tabuleiro, entradas e canaletas.
+- `python/movement.py`: movimentação e colisões.
+- `python/renderer.py`: desenho do tabuleiro e das peças.
+- `python/input_handler.py`: mouse e teclado.
+- `python/tests/`: testes automatizados.
 
 Este é um projeto independente de estudo e não é afiliado à SmartGames.
