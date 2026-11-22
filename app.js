@@ -988,9 +988,9 @@
     }
   });
 
-  resetButton.addEventListener("click", resetGame);
-  rotateButton.addEventListener("click", rotateSelected);
-  mobileRotateButton.addEventListener("click", rotateSelected);
+  resetButton?.addEventListener("click", resetGame);
+  rotateButton?.addEventListener("click", rotateSelected);
+  mobileRotateButton?.addEventListener("click", rotateSelected);
   nudgeButtons.forEach((button) => {
     button.addEventListener("click", () => {
       const directions = {
