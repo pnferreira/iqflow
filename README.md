@@ -41,6 +41,6 @@ Depois acesse `http://localhost:8000`.
 - `styles.css`: aparência e adaptação para celular e desktop.
 - `app.js`: desenho, peças, entradas, rotação, colisões e movimentação.
 
-Os arquivos Python foram mantidos como versão legada e não são usados pelo GitHub Pages.
+A versão publicada no GitHub contém somente os arquivos web. A implementação Python pode ser mantida separadamente como legado.
 
 Este é um projeto independente de estudo e não é afiliado à SmartGames.
