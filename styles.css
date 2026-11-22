@@ -57,8 +57,7 @@ body {
   gap: 10px;
 }
 
-button,
-.control-link {
+button {
   min-height: 42px;
   padding: 0 18px;
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -71,25 +70,15 @@ button,
   transition: transform 120ms ease, background-color 120ms ease;
 }
 
-.control-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-}
-
-button:hover,
-.control-link:hover {
+button:hover {
   background: #505867;
 }
 
-button:active,
-.control-link:active {
+button:active {
   transform: translateY(1px);
 }
 
 button:focus-visible,
-.control-link:focus-visible,
 canvas:focus-visible {
   outline: 3px solid #74d7c1;
   outline-offset: 3px;
@@ -114,14 +103,6 @@ canvas {
   touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
-}
-
-canvas.dragging {
-  touch-action: none;
-}
-
-.mobile-toolbar {
-  display: none;
 }
 
 footer {
@@ -180,45 +161,10 @@ footer {
     flex-wrap: nowrap;
   }
 
-  .controls button,
-  .controls .control-link {
+  .controls button {
     min-height: 44px;
     padding: 0 12px;
     font-size: 0.9rem;
-  }
-
-  .mobile-toolbar {
-    position: sticky;
-    top: 0;
-    z-index: 8;
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 8px;
-    padding: 8px 10px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(20, 22, 28, 0.96);
-    backdrop-filter: blur(12px);
-  }
-
-  .mobile-view-controls,
-  .mobile-move-controls {
-    display: flex;
-    gap: 6px;
-  }
-
-  .mobile-move-controls {
-    justify-content: flex-end;
-  }
-
-  .mobile-toolbar button {
-    min-width: 48px;
-    min-height: 44px;
-    padding: 0 10px;
-    font-size: 0.82rem;
-  }
-
-  .mobile-view-controls button {
-    background: #286f65;
   }
 
   canvas {
@@ -233,25 +179,6 @@ footer {
 
   .status {
     bottom: calc(18px + env(safe-area-inset-bottom));
-  }
-}
-
-@media (max-width: 560px) {
-  .control-link {
-    display: none;
-  }
-
-  .mobile-toolbar {
-    grid-template-columns: 1fr;
-  }
-
-  .mobile-view-controls,
-  .mobile-move-controls {
-    justify-content: center;
-  }
-
-  .mobile-toolbar button {
-    flex: 1;
   }
 }
 

@@ -5,9 +5,6 @@
   const ctx = canvas.getContext("2d");
   const resetButton = document.getElementById("reset-button");
   const rotateButton = document.getElementById("rotate-button");
-  const showBoardButton = document.getElementById("show-board-button");
-  const showPiecesButton = document.getElementById("show-pieces-button");
-  const mobileMoveButtons = document.querySelectorAll("[data-move]");
   const statusElement = document.getElementById("status");
 
   const BOARD_SIZE = 5;
@@ -38,6 +35,7 @@
   let pieces = [];
   let selectedId = null;
   let drag = null;
+  let touchTap = null;
   let animation = null;
   let wonShown = false;
   let statusTimer = null;
@@ -824,29 +822,71 @@
     showStatus("As peças voltaram para a zona de montagem.");
   }
 
-  function scrollToCanvasPosition(y) {
-    const canvasTop = canvas.getBoundingClientRect().top + window.scrollY;
-    const toolbar = document.querySelector(".mobile-toolbar");
-    const offset = toolbar ? toolbar.offsetHeight + 12 : 12;
-    window.scrollTo({ top: Math.max(0, canvasTop + y - offset), behavior: "smooth" });
+  function moveBoardTowardPoint(piece, point) {
+    const origin = renderOrigin(piece);
+    const bounds = pieceBounds(piece);
+    const rect = {
+      x: origin.x,
+      y: origin.y,
+      width: bounds.width * layout.cell,
+      height: bounds.height * layout.cell,
+    };
+    if (pointInRect(point, rect)) return false;
+
+    const horizontal = waveAxis(piece) === "horizontal";
+    const edge = horizontal
+      ? point.x < rect.x ? rect.x : rect.x + rect.width
+      : point.y < rect.y ? rect.y : rect.y + rect.height;
+    const destination = horizontal ? point.x : point.y;
+    const direction = destination < edge ? -1 : 1;
+    const steps = Math.max(1, Math.ceil(Math.abs(destination - edge) / layout.cell));
+    let moved = false;
+
+    for (let step = 0; step < steps && piece.mode === "board"; step += 1) {
+      const didMove = horizontal
+        ? moveOne(piece, direction, 0)
+        : moveOne(piece, 0, direction);
+      if (!didMove) break;
+      moved = true;
+    }
+    if (!moved) showStatus("A peça não pode se mover nessa direção.");
+    return moved;
   }
 
-  function moveSelectedFromButton(dx, dy) {
-    const piece = pieceById(selectedId);
-    if (!piece) {
-      showStatus("Selecione uma peça primeiro.");
+  function handleTouchTap(point) {
+    const piece = pieceAt(point);
+    if (piece) {
+      selectedId = piece.id;
+      const instruction = piece.mode === "loose"
+        ? "Role até o tabuleiro e toque numa entrada destacada."
+        : "Toque no destino para deslizar a peça.";
+      showStatus(`${piece.name} selecionada. ${instruction}`);
       return;
     }
-    if (piece.mode !== "board") {
-      showStatus("Primeiro coloque a peça no tabuleiro.");
+
+    const selected = pieceById(selectedId);
+    if (!selected) return;
+    if (selected.mode === "loose") {
+      const entry = entryAtPoint(selected, point);
+      if (entry) beginInsertion(selected, entry);
+      else placeSelectedInStaging(selected, point);
       return;
     }
-    if (!moveOne(piece, dx, dy)) showStatus("A peça não pode se mover nessa direção.");
+    moveBoardTowardPoint(selected, point);
   }
 
   canvas.addEventListener("pointerdown", (event) => {
     if (animation) return;
     const point = pointerPoint(event);
+    if (event.pointerType === "touch") {
+      touchTap = {
+        pointerId: event.pointerId,
+        x: event.clientX,
+        y: event.clientY,
+        moved: false,
+      };
+      return;
+    }
     const piece = pieceAt(point);
     if (!piece) {
       const selected = pieceById(selectedId);
@@ -869,7 +909,6 @@
     }
     if (event.button !== 0) return;
     canvas.setPointerCapture(event.pointerId);
-    canvas.classList.add("dragging");
     const origin = renderOrigin(piece);
     drag = {
       pieceId: piece.id,
@@ -883,6 +922,11 @@
   });
 
   canvas.addEventListener("pointermove", (event) => {
+    if (touchTap && touchTap.pointerId === event.pointerId) {
+      const distance = Math.hypot(event.clientX - touchTap.x, event.clientY - touchTap.y);
+      if (distance > 10) touchTap.moved = true;
+      return;
+    }
     if (!drag || drag.pointerId !== event.pointerId || animation) return;
     const piece = pieceById(drag.pieceId);
     if (!piece) return;
@@ -895,6 +939,12 @@
   });
 
   canvas.addEventListener("pointerup", (event) => {
+    if (touchTap && touchTap.pointerId === event.pointerId) {
+      const tap = touchTap;
+      touchTap = null;
+      if (!tap.moved && !animation) handleTouchTap(pointerPoint(event));
+      return;
+    }
     if (!drag || drag.pointerId !== event.pointerId) return;
     const piece = pieceById(drag.pieceId);
     const point = pointerPoint(event);
@@ -916,16 +966,15 @@
       drag = null;
     }
     if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
-    canvas.classList.remove("dragging");
   });
 
   canvas.addEventListener("pointercancel", (event) => {
+    if (touchTap && touchTap.pointerId === event.pointerId) touchTap = null;
     const piece = drag ? pieceById(drag.pieceId) : null;
     if (piece && drag.mode === "loose") piece.loose = { ...drag.originalLoose };
     if (piece) piece.preview = { x: 0, y: 0 };
     drag = null;
     if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
-    canvas.classList.remove("dragging");
   });
 
   canvas.addEventListener("contextmenu", (event) => event.preventDefault());
@@ -952,19 +1001,6 @@
 
   resetButton.addEventListener("click", resetGame);
   rotateButton.addEventListener("click", rotateSelected);
-  showBoardButton.addEventListener("click", () => scrollToCanvasPosition(layout.board.y - 45));
-  showPiecesButton.addEventListener("click", () => scrollToCanvasPosition(layout.staging.y - 10));
-  mobileMoveButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      const directions = {
-        left: [-1, 0],
-        right: [1, 0],
-        up: [0, -1],
-        down: [0, 1],
-      };
-      moveSelectedFromButton(...directions[button.dataset.move]);
-    });
-  });
   window.addEventListener("resize", resizeCanvas);
 
   function frame(timestamp) {

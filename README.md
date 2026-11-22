@@ -19,11 +19,11 @@ Depois de ativar o GitHub Pages, o endereço será:
 
 ### No celular
 
-- Use **Peças** e **Tabuleiro** para navegar rapidamente entre as duas áreas.
+- Role a página normalmente para ir das peças ao tabuleiro e voltar.
 - Toque numa peça para selecioná-la e depois toque numa entrada destacada para inseri-la.
 - Toque numa posição vazia da zona de montagem para mover a peça selecionada até lá.
-- Use os botões **Esq.**, **Cima**, **Baixo** e **Dir.** para deslizar uma peça inserida.
-- O arraste por toque continua disponível; a navegação por toque evita precisar arrastar por toda a página.
+- Para deslizar uma peça inserida, selecione-a e toque no destino, na direção permitida pelas ondas.
+- Use **Girar peça** no topo para mudar a orientação da peça selecionada.
 
 ## Abrir localmente
 
