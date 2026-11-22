@@ -17,6 +17,14 @@ Depois de ativar o GitHub Pages, o endereço será:
 - As setas também movem a peça selecionada.
 - **Reiniciar** devolve todas as peças à zona de montagem.
 
+### No celular
+
+- Use **Peças** e **Tabuleiro** para navegar rapidamente entre as duas áreas.
+- Toque numa peça para selecioná-la e depois toque numa entrada destacada para inseri-la.
+- Toque numa posição vazia da zona de montagem para mover a peça selecionada até lá.
+- Use os botões **Esq.**, **Cima**, **Baixo** e **Dir.** para deslizar uma peça inserida.
+- O arraste por toque continua disponível; a navegação por toque evita precisar arrastar por toda a página.
+
 ## Abrir localmente
 
 Você pode abrir `index.html` diretamente no navegador. Outra opção é iniciar um servidor local simples:
@@ -41,6 +49,16 @@ Depois acesse `http://localhost:8000`.
 - `styles.css`: aparência e adaptação para celular e desktop.
 - `app.js`: desenho, peças, entradas, rotação, colisões e movimentação.
 
-A versão publicada no GitHub contém somente os arquivos web. A implementação Python pode ser mantida separadamente como legado.
+## Versão Python
+
+A pasta [`python/`](python/) contém a versão desktop completa em Pygame. Ela não interfere no GitHub Pages, que utiliza somente o `index.html` e os arquivos web da raiz.
+
+```bash
+cd python
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+python main.py
+```
 
 Este é um projeto independente de estudo e não é afiliado à SmartGames.

@@ -5,6 +5,9 @@
   const ctx = canvas.getContext("2d");
   const resetButton = document.getElementById("reset-button");
   const rotateButton = document.getElementById("rotate-button");
+  const showBoardButton = document.getElementById("show-board-button");
+  const showPiecesButton = document.getElementById("show-pieces-button");
+  const mobileMoveButtons = document.querySelectorAll("[data-move]");
   const statusElement = document.getElementById("status");
 
   const BOARD_SIZE = 5;
@@ -221,12 +224,12 @@
       boardX = Math.max(38, (stagingX - cell * 5) / 2);
       boardY = Math.max(92, (height - cell * 5) / 2);
     } else {
-      cell = Math.max(48, Math.min(68, (width - 34) / 5));
+      cell = Math.max(44, Math.min(64, (width - 84) / 5));
       boardX = (width - cell * 5) / 2;
-      boardY = 86;
+      boardY = 54;
       stagingX = (width - cell * 5 - 28) / 2;
-      stagingY = boardY + cell * 5 + 104;
-      height = stagingY + cell * 7 + 108;
+      stagingY = boardY + cell * 5 + 78;
+      height = stagingY + cell * 7 + 94;
     }
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -606,6 +609,41 @@
     return candidates[0] || null;
   }
 
+  function entryAtPoint(piece, point) {
+    const padding = Math.max(10, layout.cell * 0.18);
+    const candidates = [];
+    for (const side of compatibleSides(piece)) {
+      for (const lane of entryLanes(piece, side)) {
+        const rect = entryRect(side, lane);
+        const target = {
+          x: rect.x - padding,
+          y: rect.y - padding,
+          width: rect.width + padding * 2,
+          height: rect.height + padding * 2,
+        };
+        if (pointInRect(point, target)) candidates.push({ side, lane });
+      }
+    }
+    return candidates[0] || null;
+  }
+
+  function placeSelectedInStaging(piece, point) {
+    if (!pointInRect(point, layout.stagingGrid)) return false;
+    const bounds = pieceBounds(piece);
+    let column = (point.x - layout.stagingGrid.x) / layout.cell - bounds.width / 2;
+    let row = (point.y - layout.stagingGrid.y) / layout.cell - bounds.height / 2;
+    if (pointInRect(point, layout.testGrid)) {
+      column = Math.round(column);
+      row = Math.round(row);
+      piece.loose = clampLoose(piece, column, row, 5);
+    } else {
+      piece.loose = clampLoose(piece, column, row, 7);
+    }
+    piece.lastLoose = { ...piece.loose };
+    showStatus(`${piece.name} posicionada na zona de montagem.`);
+    return true;
+  }
+
   function clampLoose(piece, column, row, rows = 7) {
     const bounds = pieceBounds(piece);
     return {
@@ -786,12 +824,41 @@
     showStatus("As peças voltaram para a zona de montagem.");
   }
 
+  function scrollToCanvasPosition(y) {
+    const canvasTop = canvas.getBoundingClientRect().top + window.scrollY;
+    const toolbar = document.querySelector(".mobile-toolbar");
+    const offset = toolbar ? toolbar.offsetHeight + 12 : 12;
+    window.scrollTo({ top: Math.max(0, canvasTop + y - offset), behavior: "smooth" });
+  }
+
+  function moveSelectedFromButton(dx, dy) {
+    const piece = pieceById(selectedId);
+    if (!piece) {
+      showStatus("Selecione uma peça primeiro.");
+      return;
+    }
+    if (piece.mode !== "board") {
+      showStatus("Primeiro coloque a peça no tabuleiro.");
+      return;
+    }
+    if (!moveOne(piece, dx, dy)) showStatus("A peça não pode se mover nessa direção.");
+  }
+
   canvas.addEventListener("pointerdown", (event) => {
     if (animation) return;
     const point = pointerPoint(event);
     const piece = pieceAt(point);
     if (!piece) {
-      selectedId = null;
+      const selected = pieceById(selectedId);
+      if (selected && selected.mode === "loose") {
+        const entry = entryAtPoint(selected, point);
+        if (entry) {
+          beginInsertion(selected, entry);
+          return;
+        }
+        if (placeSelectedInStaging(selected, point)) return;
+      }
+      if (layout.desktop) selectedId = null;
       return;
     }
     selectedId = piece.id;
@@ -802,6 +869,7 @@
     }
     if (event.button !== 0) return;
     canvas.setPointerCapture(event.pointerId);
+    canvas.classList.add("dragging");
     const origin = renderOrigin(piece);
     drag = {
       pieceId: piece.id,
@@ -848,6 +916,7 @@
       drag = null;
     }
     if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+    canvas.classList.remove("dragging");
   });
 
   canvas.addEventListener("pointercancel", (event) => {
@@ -856,6 +925,7 @@
     if (piece) piece.preview = { x: 0, y: 0 };
     drag = null;
     if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+    canvas.classList.remove("dragging");
   });
 
   canvas.addEventListener("contextmenu", (event) => event.preventDefault());
@@ -882,6 +952,19 @@
 
   resetButton.addEventListener("click", resetGame);
   rotateButton.addEventListener("click", rotateSelected);
+  showBoardButton.addEventListener("click", () => scrollToCanvasPosition(layout.board.y - 45));
+  showPiecesButton.addEventListener("click", () => scrollToCanvasPosition(layout.staging.y - 10));
+  mobileMoveButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const directions = {
+        left: [-1, 0],
+        right: [1, 0],
+        up: [0, -1],
+        down: [0, 1],
+      };
+      moveSelectedFromButton(...directions[button.dataset.move]);
+    });
+  });
   window.addEventListener("resize", resizeCanvas);
 
   function frame(timestamp) {

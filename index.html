@@ -17,10 +17,24 @@
       </div>
 
       <div class="controls" aria-label="Controles do jogo">
+        <a class="control-link" href="https://github.com/pnferreira/iqflow/tree/main/python">Versão Python</a>
         <button id="rotate-button" type="button">Girar peça</button>
         <button id="reset-button" type="button">Reiniciar</button>
       </div>
     </header>
+
+    <nav class="mobile-toolbar" aria-label="Controles para celular">
+      <div class="mobile-view-controls">
+        <button id="show-board-button" type="button">Tabuleiro</button>
+        <button id="show-pieces-button" type="button">Peças</button>
+      </div>
+      <div class="mobile-move-controls" aria-label="Mover peça selecionada">
+        <button type="button" data-move="left" aria-label="Mover para a esquerda">Esq.</button>
+        <button type="button" data-move="up" aria-label="Mover para cima">Cima</button>
+        <button type="button" data-move="down" aria-label="Mover para baixo">Baixo</button>
+        <button type="button" data-move="right" aria-label="Mover para a direita">Dir.</button>
+      </div>
+    </nav>
 
     <main>
       <canvas
@@ -34,6 +48,7 @@
 
     <footer>
       <span>Arraste para mover</span>
+      <span>No celular, selecione a peça e toque numa entrada</span>
       <span>Botão direito ou R para girar</span>
       <span>Setas para deslizar</span>
     </footer>
