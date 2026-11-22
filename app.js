@@ -11,6 +11,10 @@
 
   const BOARD_SIZE = 5;
   const RAIL_DEPTH = 4;
+  const STAGING_COLUMNS = 5;
+  const TEST_ROWS = 5;
+  const SUPPORT_ROWS = 7;
+  const STAGING_ROWS = TEST_ROWS + SUPPORT_ROWS;
   const OPENINGS = {
     left: new Set([0, 1, 3, 4]),
     right: new Set([1, 2, 3]),
@@ -217,19 +221,20 @@
     let stagingY;
 
     if (desktop) {
-      height = Math.max(680, window.innerHeight - document.querySelector(".topbar").offsetHeight - 44);
-      cell = Math.max(52, Math.min(80, (width - 160) / 10, (height - 118) / 7));
-      stagingX = width - cell * 5 - 42;
+      const availableHeight = Math.max(680, window.innerHeight - document.querySelector(".topbar").offsetHeight - 44);
+      cell = Math.max(52, Math.min(80, (width - 160) / 10, (availableHeight - 118) / STAGING_ROWS));
+      stagingX = width - cell * STAGING_COLUMNS - 42;
       stagingY = 20;
-      boardX = Math.max(38, (stagingX - cell * 5) / 2);
+      height = Math.max(availableHeight, stagingY + cell * STAGING_ROWS + 102);
+      boardX = Math.max(38, (stagingX - cell * BOARD_SIZE) / 2);
       boardY = Math.max(92, (height - cell * 5) / 2);
     } else {
-      cell = Math.max(44, Math.min(64, (width - 84) / 5));
-      boardX = (width - cell * 5) / 2;
+      cell = Math.max(44, Math.min(64, (width - 84) / STAGING_COLUMNS));
+      boardX = (width - cell * BOARD_SIZE) / 2;
       boardY = 54;
-      stagingX = (width - cell * 5 - 28) / 2;
-      stagingY = boardY + cell * 5 + 78;
-      height = stagingY + cell * 7 + 94;
+      stagingX = (width - cell * STAGING_COLUMNS - 28) / 2;
+      stagingY = boardY + cell * BOARD_SIZE + 78;
+      height = stagingY + cell * STAGING_ROWS + 94;
     }
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -243,10 +248,10 @@
       height,
       desktop,
       cell,
-      board: { x: boardX, y: boardY, width: cell * 5, height: cell * 5 },
-      staging: { x: stagingX, y: stagingY, width: cell * 5 + 28, height: cell * 7 + 82 },
-      stagingGrid: { x: stagingX + 14, y: stagingY + 58, width: cell * 5, height: cell * 7 },
-      testGrid: { x: stagingX + 14, y: stagingY + 58, width: cell * 5, height: cell * 5 },
+      board: { x: boardX, y: boardY, width: cell * BOARD_SIZE, height: cell * BOARD_SIZE },
+      staging: { x: stagingX, y: stagingY, width: cell * STAGING_COLUMNS + 28, height: cell * STAGING_ROWS + 82 },
+      stagingGrid: { x: stagingX + 14, y: stagingY + 58, width: cell * STAGING_COLUMNS, height: cell * STAGING_ROWS },
+      testGrid: { x: stagingX + 14, y: stagingY + 58, width: cell * STAGING_COLUMNS, height: cell * TEST_ROWS },
     };
   }
 
@@ -356,10 +361,10 @@
 
     ctx.fillStyle = "#edf0f5";
     ctx.font = "600 18px system-ui, sans-serif";
-    ctx.fillText("Zona de montagem 5×5", staging.x + 16, staging.y + 25);
+    ctx.fillText("Zona de montagem 5×12", staging.x + 16, staging.y + 25);
     ctx.fillStyle = "#a4abb9";
     ctx.font = "13px system-ui, sans-serif";
-    ctx.fillText("As duas linhas inferiores servem de apoio", staging.x + 16, staging.y + 46);
+    ctx.fillText("Quadrado 5×5 + apoio livre 5×7", staging.x + 16, staging.y + 46);
 
     ctx.fillStyle = "#181b21";
     ctx.fillRect(stagingGrid.x, stagingGrid.y, stagingGrid.width, stagingGrid.height);
@@ -368,14 +373,14 @@
 
     ctx.strokeStyle = "#3b414b";
     ctx.lineWidth = 1;
-    for (let column = 0; column <= 5; column += 1) {
+    for (let column = 0; column <= STAGING_COLUMNS; column += 1) {
       const x = stagingGrid.x + column * cell;
       ctx.beginPath();
       ctx.moveTo(x, stagingGrid.y);
       ctx.lineTo(x, stagingGrid.y + stagingGrid.height);
       ctx.stroke();
     }
-    for (let row = 0; row <= 7; row += 1) {
+    for (let row = 0; row <= STAGING_ROWS; row += 1) {
       const y = stagingGrid.y + row * cell;
       ctx.beginPath();
       ctx.moveTo(stagingGrid.x, y);
@@ -635,19 +640,19 @@
     if (pointInRect(point, layout.testGrid)) {
       column = Math.round(column);
       row = Math.round(row);
-      piece.loose = clampLoose(piece, column, row, 5);
+      piece.loose = clampLoose(piece, column, row, TEST_ROWS);
     } else {
-      piece.loose = clampLoose(piece, column, row, 7);
+      piece.loose = clampLoose(piece, column, row, STAGING_ROWS);
     }
     piece.lastLoose = { ...piece.loose };
     showStatus(`${piece.name} posicionada na zona de montagem.`);
     return true;
   }
 
-  function clampLoose(piece, column, row, rows = 7) {
+  function clampLoose(piece, column, row, rows = STAGING_ROWS) {
     const bounds = pieceBounds(piece);
     return {
-      column: Math.max(0, Math.min(5 - bounds.width, column)),
+      column: Math.max(0, Math.min(STAGING_COLUMNS - bounds.width, column)),
       row: Math.max(0, Math.min(rows - bounds.height, row)),
     };
   }
@@ -659,9 +664,9 @@
     if (pointInRect(point, layout.testGrid)) {
       column = Math.round(column);
       row = Math.round(row);
-      piece.loose = clampLoose(piece, column, row, 5);
+      piece.loose = clampLoose(piece, column, row, TEST_ROWS);
     } else {
-      piece.loose = clampLoose(piece, column, row, 7);
+      piece.loose = clampLoose(piece, column, row, STAGING_ROWS);
     }
     piece.lastLoose = { ...piece.loose };
     return true;
@@ -682,7 +687,7 @@
       return;
     }
     piece.rotation = (piece.rotation + 1) % 4;
-    const rows = piece.loose.row < 5 ? 5 : 7;
+    const rows = piece.loose.row < TEST_ROWS ? TEST_ROWS : STAGING_ROWS;
     piece.loose = clampLoose(piece, piece.loose.column, piece.loose.row, rows);
     piece.lastLoose = { ...piece.loose };
   }
@@ -834,7 +839,7 @@
     if (animation) return;
 
     if (piece.mode === "loose") {
-      const target = clampLoose(piece, piece.loose.column + dx, piece.loose.row + dy, 7);
+      const target = clampLoose(piece, piece.loose.column + dx, piece.loose.row + dy, STAGING_ROWS);
       const changed = target.column !== piece.loose.column || target.row !== piece.loose.row;
       piece.loose = target;
       piece.lastLoose = { ...target };
