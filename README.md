@@ -10,7 +10,8 @@ Depois de ativar o GitHub Pages, o endereço será:
 
 - Arraste as peças em tamanho normal na zona de montagem.
 - Solte uma peça nas cinco linhas superiores para encaixá-la no quadrado de planejamento 5×5.
-- Use a área livre 5×7 abaixo do quadrado para deixar todas as peças fora da montagem principal.
+- No celular, use a área livre 5×7 abaixo do quadrado para deixar todas as peças fora da montagem principal.
+- No computador, as peças começam distribuídas fora do quadrado: três à esquerda, três à direita e duas abaixo.
 - Clique com o botão direito, pressione `R` ou use **Girar peça** enquanto ela estiver fora do tabuleiro.
 - Arraste uma peça até uma entrada destacada para inseri-la.
 - Dentro do tabuleiro, a peça desliza somente no eixo indicado pelas ondas.
